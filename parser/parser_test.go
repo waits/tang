@@ -416,7 +416,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 }
 
 func TestIfExpression(t *testing.T) {
-	input := `if (x < y) { x }`
+	input := `if x < y { x }`
 
 	l := lexer.New(input)
 	p := New(l)
@@ -465,7 +465,7 @@ func TestIfExpression(t *testing.T) {
 }
 
 func TestIfElseExpression(t *testing.T) {
-	input := `if (x < y) { x } else { y }`
+	input := `if x < y { x } else { y }`
 
 	l := lexer.New(input)
 	p := New(l)
@@ -698,12 +698,12 @@ func TestExpressionStrings(t *testing.T) {
 		expected string
 	}{
 		{
-			"if (x > y) { true; }",
-			"if ((x > y)) { true; };",
+			"if x > y { true; }",
+			"if (x > y) { true; };",
 		},
 		{
-			"if (x > y) { true; } else { false; }",
-			"if ((x > y)) { true; } else { false; };",
+			"if x > y { true; } else { false; }",
+			"if (x > y) { true; } else { false; };",
 		},
 		{
 			"fn(a, b, c) { return a + b + c; }(1, 2, 3)",

@@ -96,13 +96,13 @@ func TestIfElseExpressions(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"if (true) { 10 }", 10},
-		{"if (false) { 10 }", nil},
-		{"if (1) { 10 }", 10},
-		{"if (1 < 2) { 10 }", 10},
-		{"if (1 > 2) { 10 }", nil},
-		{"if (1 > 2) { 10 } else { 20 }", 20},
-		{"if (1 < 2) { 10 } else { 20 }", 10},
+		{"if true { 10 }", 10},
+		{"if false { 10 }", nil},
+		{"if 1 { 10 }", 10},
+		{"if 1 < 2 { 10 }", 10},
+		{"if 1 > 2 { 10 }", nil},
+		{"if 1 > 2 { 10 } else { 20 }", 20},
+		{"if 1 < 2 { 10 } else { 20 }", 10},
 	}
 
 	for _, tt := range tests {
@@ -125,11 +125,11 @@ func TestReturnStatements(t *testing.T) {
 		{"return 10; 9;", 10},
 		{"return 2 * 5; 9;", 10},
 		{"9; return 2 * 5; 9;", 10},
-		{"if (10 > 1) { return 10; }", 10},
+		{"if 10 > 1 { return 10; }", 10},
 		{
 			`
-if (10 > 1) {
-  if (10 > 1) {
+if 10 > 1 {
+  if 10 > 1 {
     return 10;
   }
 
@@ -195,13 +195,13 @@ func TestErrorHandling(t *testing.T) {
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
 		{
-			"if (10 > 1) { true + false; }",
+			"if 10 > 1 { true + false; }",
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
 		{
 			`
-if (10 > 1) {
-  if (10 > 1) {
+if 10 > 1 {
+  if 10 > 1 {
     return true + false;
   }
 
