@@ -140,4 +140,17 @@ var builtins = map[string]*object.Builtin{
 			return &object.Null{}
 		},
 	},
+	"panic": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("wrong number of arguments. got=%d, want=1",
+					len(args))
+			}
+
+			fmt.Printf("panic: %s\n", args[0].Inspect())
+			os.Exit(1)
+
+			return &object.Null{}
+		},
+	},
 }

@@ -359,6 +359,8 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`append(1, 1)`, "argument to `append` must be ARRAY, got INTEGER"},
 		{`exit(0)`, nil},
 		{`exit([])`, "argument to `exit` must be INTEGER, got ARRAY"},
+		{`panic("problem")`, nil},
+		{`panic()`, "wrong number of arguments. got=0, want=1"},
 	}
 
 	for _, tt := range tests {
