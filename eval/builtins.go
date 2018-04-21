@@ -2,6 +2,7 @@ package eval
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/waits/tang/object"
 )
@@ -119,6 +120,24 @@ var builtins = map[string]*object.Builtin{
 			newElements[length] = args[1]
 
 			return &object.Array{Elements: newElements}
+		},
+	},
+	"exit": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("wrong number of arguments. got=%d, want=1",
+					len(args))
+			}
+			if args[0].Type() != object.INTEGER {
+				return newError("argument to `exit` must be INTEGER, got %s",
+					args[0].Type())
+			}
+
+			arg := args[0].(*object.Integer)
+			code := int(arg.Value)
+			os.Exit(code)
+
+			return &object.Null{}
 		},
 	},
 }
