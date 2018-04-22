@@ -18,7 +18,7 @@ const (
 	ERROR        = "ERROR"
 	FUNCTION     = "FUNCTION"
 	BUILTIN      = "BUILTIN"
-	ARRAY        = "ARRAY"
+	LIST         = "LIST"
 	HASH         = "HASH"
 )
 
@@ -102,12 +102,12 @@ type Builtin struct {
 func (b *Builtin) Type() ObjectType { return BUILTIN }
 func (b *Builtin) Inspect() string  { return "builtin function" }
 
-type Array struct {
+type List struct {
 	Elements []Object
 }
 
-func (ao *Array) Type() ObjectType { return ARRAY }
-func (ao *Array) Inspect() string {
+func (ao *List) Type() ObjectType { return LIST }
+func (ao *List) Inspect() string {
 	var out bytes.Buffer
 
 	elements := []string{}

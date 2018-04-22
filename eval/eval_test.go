@@ -350,16 +350,16 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`format("hello %v", "world!")`, "hello world!"},
 		{`first([1, 2, 3])`, 1},
 		{`first([])`, nil},
-		{`first(1)`, "argument to `first` must be ARRAY, got INTEGER"},
+		{`first(1)`, "argument to `first` must be LIST, got INTEGER"},
 		{`last([1, 2, 3])`, 3},
 		{`last([])`, nil},
-		{`last(1)`, "argument to `last` must be ARRAY, got INTEGER"},
+		{`last(1)`, "argument to `last` must be LIST, got INTEGER"},
 		{`rest([1, 2, 3])`, []int{2, 3}},
 		{`rest([])`, nil},
 		{`append([], 1)`, []int{1}},
-		{`append(1, 1)`, "argument to `append` must be ARRAY, got INTEGER"},
+		{`append(1, 1)`, "argument to `append` must be LIST, got INTEGER"},
 		{`exit(0)`, nil},
-		{`exit([])`, "argument to `exit` must be INTEGER, got ARRAY"},
+		{`exit([])`, "argument to `exit` must be INTEGER, got LIST"},
 		{`panic("problem")`, nil},
 		{`panic()`, "wrong number of arguments. got=0, want=1"},
 	}
@@ -385,17 +385,17 @@ func TestBuiltinFunctions(t *testing.T) {
 	}
 }
 
-func TestArrayLiterals(t *testing.T) {
+func TestListLiterals(t *testing.T) {
 	input := "[1, 2 * 2, 3 + 3]"
 
 	evaluated := testEval(input)
-	result, ok := evaluated.(*object.Array)
+	result, ok := evaluated.(*object.List)
 	if !ok {
-		t.Fatalf("object is not Array. got=%T (%+v)", evaluated, evaluated)
+		t.Fatalf("object is not List. got=%T (%+v)", evaluated, evaluated)
 	}
 
 	if len(result.Elements) != 3 {
-		t.Fatalf("array has wrong num of elements. got=%d",
+		t.Fatalf("lists has wrong num of elements. got=%d",
 			len(result.Elements))
 	}
 
@@ -404,7 +404,7 @@ func TestArrayLiterals(t *testing.T) {
 	testIntegerObject(t, result.Elements[2], 6)
 }
 
-func TestArrayIndexExpressions(t *testing.T) {
+func TestListIndexExpressions(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected interface{}
@@ -430,15 +430,15 @@ func TestArrayIndexExpressions(t *testing.T) {
 			3,
 		},
 		{
-			"let myArray = [1, 2, 3]; myArray[2];",
+			"let myList = [1, 2, 3]; myList[2];",
 			3,
 		},
 		{
-			"let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];",
+			"let myList = [1, 2, 3]; myList[0] + myList[1] + myList[2];",
 			6,
 		},
 		{
-			"let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]",
+			"let myList = [1, 2, 3]; let i = myList[0]; myList[i]",
 			2,
 		},
 		{
