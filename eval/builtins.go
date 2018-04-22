@@ -3,8 +3,14 @@ package eval
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/waits/tang/object"
+)
+
+const (
+	F_DEFAULT = iota
+	F_PERCENT // %
 )
 
 var builtins = map[string]*object.Builtin{
@@ -33,6 +39,45 @@ var builtins = map[string]*object.Builtin{
 			}
 
 			return NULL
+		},
+	},
+	"format": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) == 0 || args[0].Type() != object.STRING {
+				return newError("first argument to `format` must be STRING")
+			}
+
+			format, args := args[0].(*object.String).Value, args[1:]
+			state := F_DEFAULT
+			var b strings.Builder
+
+			for i := 0; i < len(format); i++ {
+				switch format[i] {
+				case '%':
+					if state == F_PERCENT {
+						b.WriteRune('%')
+						state = F_DEFAULT
+						break
+					}
+					state = F_PERCENT
+				case 'v':
+					if state == F_PERCENT {
+						val := args[0]
+						args = args[1:]
+						b.WriteString(val.Inspect())
+						state = F_DEFAULT
+						break
+					}
+					b.WriteRune('v')
+				default:
+					if state == F_PERCENT {
+						return newError("invalid format verb `%%%s`", string(format[i]))
+					}
+					b.WriteByte(format[i])
+				}
+			}
+
+			return &object.String{Value: b.String()}
 		},
 	},
 	"first": &object.Builtin{
@@ -137,7 +182,7 @@ var builtins = map[string]*object.Builtin{
 			code := int(arg.Value)
 			os.Exit(code)
 
-			return &object.Null{}
+			return NULL
 		},
 	},
 	"panic": &object.Builtin{
@@ -147,10 +192,10 @@ var builtins = map[string]*object.Builtin{
 					len(args))
 			}
 
-			fmt.Printf("panic: %s\n", args[0].Inspect())
+			fmt.Printf("PANIC: %s\n", args[0].Inspect())
 			os.Exit(1)
 
-			return &object.Null{}
+			return NULL
 		},
 	},
 }

@@ -347,6 +347,7 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len([1, 2, 3])`, 3},
 		{`len([])`, 0},
 		{`print("hello", "world!")`, nil},
+		{`format("hello %v", "world!")`, "hello world!"},
 		{`first([1, 2, 3])`, 1},
 		{`first([])`, nil},
 		{`first(1)`, "argument to `first` must be ARRAY, got INTEGER"},
