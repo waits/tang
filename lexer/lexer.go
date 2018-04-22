@@ -15,9 +15,8 @@ func New(input string) *Lexer {
 	return l
 }
 
-func (l *Lexer) NextToken() token.Token {
-	var tok token.Token
-
+func (l *Lexer) NextToken() (tok token.Token) {
+next:
 	l.skipWhitespace()
 
 	switch l.ch {
@@ -44,6 +43,9 @@ func (l *Lexer) NextToken() token.Token {
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
 	case '/':
+		if l.skipComment() {
+			goto next
+		}
 		tok = newToken(token.SLASH, l.ch)
 	case '*':
 		tok = newToken(token.ASTERISK, l.ch)
@@ -146,6 +148,24 @@ func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
+}
+
+func (l *Lexer) skipComment() bool {
+	if l.peekChar() == '/' {
+		for l.ch != 0 && l.ch != '\n' && l.ch != '\r' {
+			l.readChar()
+		}
+		return true
+	} else if l.peekChar() == '*' {
+		for l.ch != 0 && (l.ch != '*' || l.peekChar() != '/') {
+			l.readChar()
+		}
+		l.readChar()
+		l.readChar()
+		return true
+	}
+
+	return false
 }
 
 func isDigit(ch byte) bool {

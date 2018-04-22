@@ -8,15 +8,17 @@ import (
 
 func TestNextToken(t *testing.T) {
 	input := `
+	// inline comment
+	/* block comment */
 	let five = 5;
 	let ten = 10;
 
 	let add = fn(x, y) {
-		x + y;
+		x + y; /* c */
 	};
 
 	let result = add(five, ten);
-	!-/*5;
+	!-/5*;
 	5 < 10 > 5;
 
 	if 5 < 10 {
@@ -76,8 +78,8 @@ func TestNextToken(t *testing.T) {
 		{token.BANG, "!"},
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
-		{token.ASTERISK, "*"},
 		{token.INT, "5"},
+		{token.ASTERISK, "*"},
 		{token.SEMICOLON, ";"},
 		{token.INT, "5"},
 		{token.LT, "<"},
