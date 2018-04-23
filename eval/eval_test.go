@@ -346,8 +346,6 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len("one", "two")`, "wrong number of arguments. got=2, want=1"},
 		{`len([1, 2, 3])`, 3},
 		{`len([])`, 0},
-		{`print("hello", "world!")`, nil},
-		{`format("hello %v", "world!")`, "hello world!"},
 		{`first([1, 2, 3])`, 1},
 		{`first([])`, nil},
 		{`first(1)`, "argument to `first` must be LIST, got INTEGER"},
@@ -358,10 +356,6 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`rest([])`, nil},
 		{`append([], 1)`, []int{1}},
 		{`append(1, 1)`, "argument to `append` must be LIST, got INTEGER"},
-		{`exit(0)`, nil},
-		{`exit([])`, "argument to `exit` must be INTEGER, got LIST"},
-		{`panic("problem")`, nil},
-		{`panic()`, "wrong number of arguments. got=0, want=1"},
 	}
 
 	for _, tt := range tests {
@@ -385,6 +379,30 @@ func TestBuiltinFunctions(t *testing.T) {
 	}
 }
 
+func TestFormat(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{`format("hello %v", "world!")`, "hello world!"},
+		{`format("John %v:%v", 3, 16)`, "John 3:16"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		strObj, ok := evaluated.(*object.String)
+		if !ok {
+			t.Errorf("object is not String. got=%T (%+v)",
+				evaluated, evaluated)
+			continue
+		}
+		if strObj.Value != tt.expected {
+			t.Errorf("wrong value. expected=%q, got=%q",
+				tt.expected, strObj.Value)
+		}
+	}
+}
+
 func TestListLiterals(t *testing.T) {
 	input := "[1, 2 * 2, 3 + 3]"
 
@@ -395,7 +413,7 @@ func TestListLiterals(t *testing.T) {
 	}
 
 	if len(result.Elements) != 3 {
-		t.Fatalf("lists has wrong num of elements. got=%d",
+		t.Fatalf("list has wrong num of elements. got=%d",
 			len(result.Elements))
 	}
 
