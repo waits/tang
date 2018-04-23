@@ -480,6 +480,59 @@ func TestListIndexExpressions(t *testing.T) {
 	}
 }
 
+func TestTupleLiterals(t *testing.T) {
+	input := "(1, 2 * 2, 3 + 3)"
+
+	evaluated := testEval(input)
+	result, ok := evaluated.(*object.Tuple)
+	if !ok {
+		t.Fatalf("object is not Tuple. got=%T (%+v)", evaluated, evaluated)
+	}
+
+	if len(result.Elements) != 3 {
+		t.Fatalf("tuple has wrong num of elements. got=%d",
+			len(result.Elements))
+	}
+
+	testIntegerObject(t, result.Elements[0], 1)
+	testIntegerObject(t, result.Elements[1], 4)
+	testIntegerObject(t, result.Elements[2], 6)
+}
+
+func TestTupleIndexExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{
+			"(1, 2, 3)[0]",
+			1,
+		},
+		{
+			"(1, 2, 3)[1]",
+			2,
+		},
+		{
+			"(1, 2, 3)[2]",
+			3,
+		},
+		{
+			"let i = 0; (1,2)[i];",
+			1,
+		},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
+
 func TestHashLiterals(t *testing.T) {
 	input := `let two = "two";
     {

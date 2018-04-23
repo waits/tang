@@ -891,6 +891,30 @@ func TestParsingHashLiteralsWithExpressions(t *testing.T) {
 	}
 }
 
+func TestTupleLiteral(t *testing.T) {
+	input := `(1, 2, 3)`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt := program.Statements[0].(*ast.ExpressionStatement)
+	tuple, ok := stmt.Expression.(*ast.TupleLiteral)
+	if !ok {
+		t.Fatalf("exp is not ast.TupleLiteral. got=%T", stmt.Expression)
+	}
+
+	if len(tuple.Elements) != 3 {
+		t.Errorf("tuple.Elements has wrong length. got=%d", len(tuple.Elements))
+	}
+
+	expected := []int64{1, 2, 3}
+	for i, el := range tuple.Elements {
+		testIntegerLiteral(t, el, expected[i])
+	}
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
 		t.Errorf("s.TokenLiteral not 'let'. got=%q", s.TokenLiteral())

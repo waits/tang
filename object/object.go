@@ -19,6 +19,7 @@ const (
 	FUNCTION     = "FUNCTION"
 	BUILTIN      = "BUILTIN"
 	LIST         = "LIST"
+	TUPLE        = "TUPLE"
 	HASH         = "HASH"
 )
 
@@ -118,6 +119,26 @@ func (ao *List) Inspect() string {
 	out.WriteString("[")
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("]")
+
+	return out.String()
+}
+
+type Tuple struct {
+	Elements []Object
+}
+
+func (tp *Tuple) Type() ObjectType { return TUPLE }
+func (tp *Tuple) Inspect() string {
+	var out bytes.Buffer
+
+	elements := make([]string, len(tp.Elements))
+	for i, el := range tp.Elements {
+		elements[i] = el.Inspect()
+	}
+
+	out.WriteString("(")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString(")")
 
 	return out.String()
 }

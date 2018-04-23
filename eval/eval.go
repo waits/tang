@@ -67,6 +67,12 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 			return elements[0]
 		}
 		return &object.List{Elements: elements}
+	case *ast.TupleLiteral:
+		elements := evalExpressions(node.Elements, env)
+		if len(elements) == 1 && isError(elements[0]) {
+			return elements[0]
+		}
+		return &object.Tuple{Elements: elements}
 	case *ast.IndexExpression:
 		left := Eval(node.Left, env)
 		if isError(left) {
@@ -267,6 +273,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.LIST && index.Type() == object.INTEGER:
 		return evalListIndexExpression(left, index)
+	case left.Type() == object.TUPLE && index.Type() == object.INTEGER:
+		return evalTupleIndexExpression(left, index)
 	case left.Type() == object.HASH:
 		return evalHashIndexExpression(left, index)
 	default:
@@ -284,6 +292,18 @@ func evalListIndexExpression(list, index object.Object) object.Object {
 	}
 
 	return listObject.Elements[idx]
+}
+
+func evalTupleIndexExpression(tuple, index object.Object) object.Object {
+	tupleObject := tuple.(*object.Tuple)
+	idx := index.(*object.Integer).Value
+	max := int64(len(tupleObject.Elements) - 1)
+
+	if idx < 0 || idx > max {
+		return NULL
+	}
+
+	return tupleObject.Elements[idx]
 }
 
 func evalHashIndexExpression(hash, index object.Object) object.Object {
