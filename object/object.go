@@ -20,7 +20,7 @@ const (
 	BUILTIN      = "BUILTIN"
 	LIST         = "LIST"
 	TUPLE        = "TUPLE"
-	HASH         = "HASH"
+	MAP          = "MAP"
 )
 
 type ObjectType string
@@ -143,12 +143,12 @@ func (tp *Tuple) Inspect() string {
 	return out.String()
 }
 
-type HashKey struct {
+type MapKey struct {
 	Type  ObjectType
 	Value uint64
 }
 
-func (b *Boolean) HashKey() HashKey {
+func (b *Boolean) MapKey() MapKey {
 	var value uint64
 
 	if b.Value {
@@ -157,32 +157,32 @@ func (b *Boolean) HashKey() HashKey {
 		value = 0
 	}
 
-	return HashKey{Type: b.Type(), Value: value}
+	return MapKey{Type: b.Type(), Value: value}
 }
 
-func (i *Integer) HashKey() HashKey {
-	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+func (i *Integer) MapKey() MapKey {
+	return MapKey{Type: i.Type(), Value: uint64(i.Value)}
 }
 
-func (s *String) HashKey() HashKey {
+func (s *String) MapKey() MapKey {
 	h := fnv.New64a()
 
 	h.Write([]byte(s.Value))
 
-	return HashKey{Type: s.Type(), Value: h.Sum64()}
+	return MapKey{Type: s.Type(), Value: h.Sum64()}
 }
 
-type HashPair struct {
+type MapPair struct {
 	Key   Object
 	Value Object
 }
 
-type Hash struct {
-	Pairs map[HashKey]HashPair
+type Map struct {
+	Pairs map[MapKey]MapPair
 }
 
-func (h *Hash) Type() ObjectType { return HASH }
-func (h *Hash) Inspect() string {
+func (h *Map) Type() ObjectType { return MAP }
+func (h *Map) Inspect() string {
 	var out bytes.Buffer
 
 	pairs := []string{}
@@ -198,6 +198,6 @@ func (h *Hash) Inspect() string {
 	return out.String()
 }
 
-type Hashable interface {
-	HashKey() HashKey
+type Mapable interface {
+	MapKey() MapKey
 }

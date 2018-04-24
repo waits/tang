@@ -65,7 +65,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
 	p.registerPrefix(token.LBRACKET, p.parseListLiteral)
-	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
+	p.registerPrefix(token.LBRACE, p.parseMapLiteral)
 	p.registerPrefix(token.LPAREN, p.parseTupleLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -276,9 +276,9 @@ func (p *Parser) parseTupleLiteral() ast.Expression {
 	return &ast.TupleLiteral{Token: p.curToken, Elements: elements}
 }
 
-func (p *Parser) parseHashLiteral() ast.Expression {
-	hash := &ast.HashLiteral{Token: p.curToken}
-	hash.Pairs = make(map[ast.Expression]ast.Expression)
+func (p *Parser) parseMapLiteral() ast.Expression {
+	mp := &ast.MapLiteral{Token: p.curToken}
+	mp.Pairs = make(map[ast.Expression]ast.Expression)
 
 	for !p.peekTokenIs(token.RBRACE) {
 		p.nextToken()
@@ -291,7 +291,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 		p.nextToken()
 		value := p.parseExpression(LOWEST)
 
-		hash.Pairs[key] = value
+		mp.Pairs[key] = value
 
 		if !p.peekTokenIs(token.RBRACE) && !p.expectPeek(token.COMMA) {
 			return nil
@@ -302,7 +302,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 		return nil
 	}
 
-	return hash
+	return mp
 }
 
 func (p *Parser) parseGroupedExpression() ast.Expression {

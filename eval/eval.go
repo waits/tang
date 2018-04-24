@@ -83,8 +83,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 			return index
 		}
 		return evalIndexExpression(left, index)
-	case *ast.HashLiteral:
-		return evalHashLiteral(node, env)
+	case *ast.MapLiteral:
+		return evalMapLiteral(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
@@ -275,8 +275,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 		return evalListIndexExpression(left, index)
 	case left.Type() == object.TUPLE && index.Type() == object.INTEGER:
 		return evalTupleIndexExpression(left, index)
-	case left.Type() == object.HASH:
-		return evalHashIndexExpression(left, index)
+	case left.Type() == object.MAP:
+		return evalMapIndexExpression(left, index)
 	default:
 		return newError("index operator not supported: %s", left.Type())
 	}
@@ -306,15 +306,15 @@ func evalTupleIndexExpression(tuple, index object.Object) object.Object {
 	return tupleObject.Elements[idx]
 }
 
-func evalHashIndexExpression(hash, index object.Object) object.Object {
-	hashObject := hash.(*object.Hash)
+func evalMapIndexExpression(mp, index object.Object) object.Object {
+	mapObject := mp.(*object.Map)
 
-	key, ok := index.(object.Hashable)
+	key, ok := index.(object.Mapable)
 	if !ok {
-		return newError("unusable as hash key: %s", index.Type())
+		return newError("unusable as map key: %s", index.Type())
 	}
 
-	pair, ok := hashObject.Pairs[key.HashKey()]
+	pair, ok := mapObject.Pairs[key.MapKey()]
 	if !ok {
 		return NULL
 	}
@@ -322,11 +322,11 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	return pair.Value
 }
 
-func evalHashLiteral(
-	node *ast.HashLiteral,
+func evalMapLiteral(
+	node *ast.MapLiteral,
 	env *object.Env,
 ) object.Object {
-	pairs := make(map[object.HashKey]object.HashPair)
+	pairs := make(map[object.MapKey]object.MapPair)
 
 	for keyNode, valueNode := range node.Pairs {
 		key := Eval(keyNode, env)
@@ -334,9 +334,9 @@ func evalHashLiteral(
 			return key
 		}
 
-		hashKey, ok := key.(object.Hashable)
+		mapKey, ok := key.(object.Mapable)
 		if !ok {
-			return newError("unusable as hash key: %s", key.Type())
+			return newError("unusable as map key: %s", key.Type())
 		}
 
 		value := Eval(valueNode, env)
@@ -344,11 +344,11 @@ func evalHashLiteral(
 			return value
 		}
 
-		hashed := hashKey.HashKey()
-		pairs[hashed] = object.HashPair{Key: key, Value: value}
+		hashed := mapKey.MapKey()
+		pairs[hashed] = object.MapPair{Key: key, Value: value}
 	}
 
-	return &object.Hash{Pairs: pairs}
+	return &object.Map{Pairs: pairs}
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {

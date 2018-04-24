@@ -313,14 +313,14 @@ func (ie *IndexExpression) String() string {
 	return out.String()
 }
 
-type HashLiteral struct {
+type MapLiteral struct {
 	Token token.Token // the '{' token
 	Pairs map[Expression]Expression
 }
 
-func (hl *HashLiteral) expressionNode()      {}
-func (hl *HashLiteral) TokenLiteral() string { return hl.Token.Literal }
-func (hl *HashLiteral) String() string {
+func (hl *MapLiteral) expressionNode()      {}
+func (hl *MapLiteral) TokenLiteral() string { return hl.Token.Literal }
+func (hl *MapLiteral) String() string {
 	var out bytes.Buffer
 
 	pairs := []string{}
